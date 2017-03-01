@@ -17,7 +17,7 @@ m = m + 2;
 n = n + 2;
 
 
-for i = pos1(1)-1:1
+for i = pos1(1)-1:-1:1
     if pics_local(i,pos1(2)) > 0
         break;
     elseif isReachableInTwoLines(pics_local,[i,pos1(2)],pos2)
@@ -35,7 +35,7 @@ for i = pos1(1)+1:m
     end
 end
 
-for i = pos1(2)-1:1
+for i = pos1(2)-1:-1:1
     if pics_local(pos1(1),i) > 0
         break;
     elseif isReachableInTwoLines(pics_local,[pos1(1),i],pos2)
