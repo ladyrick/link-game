@@ -1,14 +1,14 @@
 function isReachable = detect( pics, pos1, pos2, extendedBorder )
 %判断是否可以消去.
 %   pics是块矩阵，pos1是第一个点的坐标，pos2是第二个点的坐标
-%   extendedBorder为可选参数，可以为true或false，默认为false，即不扩展边框
+%   extendedBorder为可选参数，可以为true或false，true，即扩展边框
 
 assert(nargin >= 3,'输入参数的数目不足。');
 [m,n] = size(pics);
-if nargin == 3 || extendedBorder == false
-    pics_local = ones(m+2,n+2); %全1封闭边框
-else
+if nargin == 3 || extendedBorder == true
     pics_local = zeros(m+2,n+2); %全0开放边框
+else
+    pics_local = ones(m+2,n+2); %全1封闭边框
 end
 pics_local(2:end-1,2:end-1) = pics;
 pos1 = pos1 + 1;
@@ -19,7 +19,12 @@ n = n + 2;
 
 for i = pos1(1)-1:-1:1
     if pics_local(i,pos1(2)) > 0
-        break;
+        if pics_local(i,pos1(2)) == pics_local(pos2(1),pos2(2))
+            isReachable = true;
+            return;
+        else
+            break;
+        end
     elseif isReachableInTwoLines(pics_local,[i,pos1(2)],pos2)
         isReachable = true;
         return;
@@ -28,7 +33,12 @@ end
 
 for i = pos1(1)+1:m
     if pics_local(i,pos1(2)) > 0
-        break;
+        if pics_local(i,pos1(2)) == pics_local(pos2(1),pos2(2))
+            isReachable = true;
+            return;
+        else
+            break;
+        end
     elseif isReachableInTwoLines(pics_local,[i,pos1(2)],pos2)
         isReachable = true;
         return;
@@ -37,7 +47,12 @@ end
 
 for i = pos1(2)-1:-1:1
     if pics_local(pos1(1),i) > 0
-        break;
+        if pics_local(pos1(1),i) == pics_local(pos2(1),pos2(2))
+            isReachable = true;
+            return;
+        else
+            break;
+        end
     elseif isReachableInTwoLines(pics_local,[pos1(1),i],pos2)
         isReachable = true;
         return;
@@ -46,7 +61,12 @@ end
 
 for i = pos1(2)+1:n
     if pics_local(pos1(1),i) > 0
-        break;
+        if pics_local(pos1(1),i) == pics_local(pos2(1),pos2(2))
+            isReachable = true;
+            return;
+        else
+            break;
+        end
     elseif isReachableInTwoLines(pics_local,[pos1(1),i],pos2)
         isReachable = true;
         return;
@@ -74,12 +94,12 @@ returnValue = (pics_local(pos1(1),pos2(2)) == 0 ...
     && isReachableDirectly(pics_local,pos1,pos4) ...
     && isReachableDirectly(pics_local,pos2,pos4));
 
-% debug1 = pics_local(pos1(1),pos2(2)) == 0;
-% debug2 = isReachableDirectly(pics_local,pos1,pos3);
-% debug3 = isReachableDirectly(pics_local,pos2,pos3);
-% debug4 = pics_local(pos2(1),pos1(2)) == 0;
-% debug5 = isReachableDirectly(pics_local,pos1,pos4);
-% debug6 = isReachableDirectly(pics_local,pos2,pos4);
+debug1 = pics_local(pos1(1),pos2(2)) == 0;
+debug2 = isReachableDirectly(pics_local,pos1,pos3);
+debug3 = isReachableDirectly(pics_local,pos2,pos3);
+debug4 = pics_local(pos2(1),pos1(2)) == 0;
+debug5 = isReachableDirectly(pics_local,pos1,pos4);
+debug6 = isReachableDirectly(pics_local,pos2,pos4);
 
 end
 
@@ -87,7 +107,12 @@ function returnValue = isReachableDirectly(pics_local,pos1,pos2)
 if pos1(1) == pos2(1) && pos1(2) == pos2(2)
     returnValue = true;
 elseif pos1(1) == pos2(1)
-    scope = pos1(2):pos2(2);
+    if pos1(2) < pos2(2)
+        step = 1;
+    else
+        step = -1;
+    end
+    scope = pos1(2):step:pos2(2);
     for n = scope(2:end-1)
         if pics_local(pos1(1),n) > 0
             returnValue = false;
@@ -96,7 +121,12 @@ elseif pos1(1) == pos2(1)
     end
     returnValue = true;
 elseif pos1(2) == pos2(2)
-    scope = pos1(1):pos2(1);
+    if pos1(1) < pos2(1)
+        step = 1;
+    else
+        step = -1;
+    end
+    scope = pos1(1):step:pos2(1);
     for n = scope(2:end-1)
         if pics_local(n,pos1(2)) > 0
             returnValue = false;

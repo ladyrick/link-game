@@ -15,24 +15,21 @@ imshow(screen);
 % 以下点的坐标均以矩阵坐标为准，非屏幕坐标。
 pos1 = fliplr(round(ginput(1)));
 pos2 = fliplr(round(ginput(1)));
-pos3 = fliplr(round(ginput(1)));
 close(fig);
 
-assert(min([pos1,pos2,pos3])>=1 ...
-    && max([pos1(1),pos2(1),pos3(1)])<=height ...
-    && max([pos1(2),pos2(2),pos3(2)])<=width, ...
+assert(min([pos1,pos2])>=1 ...
+    && max([pos1(1),pos2(1)])<=height ...
+    && max([pos1(2),pos2(2)])<=width, ...
     '选点落在屏幕之外。');
 
 % 截取图的左上角和右下角坐标。
 poslu = min(pos1,pos2);
 posrd = max(pos1,pos2);
 
-ht = pos3(1) - poslu(1);
-wt = pos3(2) - poslu(2);
 
 % h和w方向的块数
-hnpics = round((posrd(1) - poslu(1))/ht);
-wnpics = round((posrd(2) - poslu(2))/wt);
+hnpics = input('h = ');
+wnpics = input('w = ');
 % h和w方向的周期
 hpic = (posrd(1) - poslu(1))/hnpics;
 wpic = (posrd(2) - poslu(2))/wnpics;
@@ -66,10 +63,27 @@ end
 % figure;imshow(mainscreen);
 
 % 识别块，输出为一个矩阵。
-% save picscell.mat picscell;
+save picscell.mat picscell picsposcell;
 pics = recognizePics(picscell);
 
+save pics.mat pics
 
-
-
+%%
+load picscell.mat
+load pics.mat
+links = tryLinks(pics);
+disp(links);
+pause(2);
+it = 1;
+while it <= size(links,1) && links(it,1) ~= 0
+    pos1 = picsposcell{links(it,1),links(it,2)};
+    pos2 = picsposcell{links(it,3),links(it,4)};
+    mousemove(pos1(2),pos1(1));
+    mouseclick(1,1);
+    pause(0.05);
+    mousemove(pos2(2),pos2(1));
+    mouseclick(1,1);
+    pause(0.05);
+    it = it + 1;
+end
 end
